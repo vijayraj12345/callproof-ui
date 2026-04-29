@@ -17,6 +17,15 @@ import {
   Calendar,
   Crosshair,
   ChevronDown,
+  ChevronUp,
+  FileText,
+  Eye,
+  UserPlus,
+  Users,
+  Briefcase,
+  Clock,
+  CalendarPlus,
+  AtSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
