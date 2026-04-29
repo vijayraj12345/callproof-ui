@@ -17,6 +17,16 @@ import {
   Calendar,
   Crosshair,
   ChevronDown,
+  ChevronUp,
+  FileText,
+  Eye,
+  UserPlus,
+  StickyNote,
+  Users,
+  Briefcase,
+  Clock,
+  CalendarPlus,
+  AtSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,6 +79,59 @@ function TypeBadge({ type }: { type: Contact["type"] }) {
   );
 }
 
+function DetailRow({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-2 py-1 text-xs">
+      <Icon className="mt-0.5 size-3.5 shrink-0 text-primary/70" />
+      <div className="min-w-0 flex-1">
+        <span className="font-semibold text-foreground/70">{label}: </span>
+        <span className="text-foreground">{children}</span>
+      </div>
+    </div>
+  );
+}
+
+function ActionIcon({
+  icon: Icon,
+  label,
+  className,
+  onClick,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  className?: string;
+  onClick?: () => void;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={cn("size-8 rounded-lg", className)}
+          aria-label={label}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.();
+          }}
+        >
+          <Icon className="size-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 function ContactCard({
   contact,
   selected,
@@ -78,91 +141,207 @@ function ContactCard({
   selected: boolean;
   onSelect: (c: Contact) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <article
       onClick={() => onSelect(contact)}
       className={cn(
-        "group flex cursor-pointer flex-col gap-3 rounded-2xl border bg-card p-3 shadow-soft transition-smooth sm:flex-row",
+        "group flex cursor-pointer flex-col gap-3 rounded-2xl border bg-card p-3 shadow-soft transition-smooth",
         selected
           ? "border-primary/50 ring-2 ring-primary/30"
           : "border-border hover:border-primary/30 hover:shadow-elevated",
       )}
     >
-      {/* Hero image / avatar tile */}
-      <div
-        className={cn(
-          "relative flex h-32 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br text-2xl font-bold text-white sm:h-28 sm:w-28",
-          contact.heroColor,
-        )}
-      >
-        <span className="drop-shadow">{contact.avatarLabel}</span>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-1 bg-gradient-to-t from-black/55 to-transparent p-1.5">
-          <Navigation2 className="size-3 text-white/90" />
-          <span className="text-[10px] font-medium text-white/95">
-            {contact.distanceMiles.toFixed(1)} mi
-          </span>
+      {/* Top row: avatar + headline + actions */}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div
+          className={cn(
+            "relative flex h-28 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br text-2xl font-bold text-white sm:h-24 sm:w-24",
+            contact.heroColor,
+          )}
+        >
+          <span className="drop-shadow">{contact.avatarLabel}</span>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-1 bg-gradient-to-t from-black/55 to-transparent p-1.5">
+            <Navigation2 className="size-3 text-white/90" />
+            <span className="text-[10px] font-medium text-white/95">
+              {contact.distanceMiles.toFixed(1)} mi
+            </span>
+          </div>
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="truncate text-base font-semibold text-foreground">
+                {contact.name}
+              </h3>
+              <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                <Stars value={contact.rating} />
+                <span className="font-medium text-foreground">
+                  {contact.rating.toFixed(1)}
+                </span>
+                <span>({contact.reviews})</span>
+                {contact.priceTier && (
+                  <span className="font-medium text-foreground/80">
+                    · {contact.priceTier}
+                  </span>
+                )}
+              </div>
+            </div>
+            <TypeBadge type={contact.type} />
+          </div>
+
+          {/* Always-visible essentials */}
+          <div className="mt-1.5 space-y-0.5">
+            <DetailRow icon={MapPin} label="Address">
+              {contact.address}
+            </DetailRow>
+            {contact.lastNote && (
+              <DetailRow icon={StickyNote} label="Last note">
+                {contact.lastNote}
+              </DetailRow>
+            )}
+            <DetailRow icon={Clock} label="Contacted">
+              {contact.lastContacted}
+            </DetailRow>
+          </div>
+
+          {/* Phone chips */}
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {contact.phones.map((p, i) => (
+              <button
+                key={i}
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-smooth",
+                  p.isInactive
+                    ? "bg-muted text-muted-foreground line-through"
+                    : "bg-[hsl(var(--primary)/0.1)] text-primary hover:bg-primary hover:text-primary-foreground",
+                )}
+              >
+                <Phone className="size-3" />({p.kind}) {p.number}
+              </button>
+            ))}
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 rounded-md bg-[hsl(var(--accent)/0.12)] px-2 py-1 text-[11px] font-semibold text-accent hover:bg-accent hover:text-accent-foreground"
+            >
+              <MessageSquare className="size-3" />
+              SMS
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="truncate text-base font-semibold text-foreground">
-              {contact.name}
-            </h3>
-            <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-              <Stars value={contact.rating} />
-              <span className="font-medium text-foreground">
-                {contact.rating.toFixed(1)}
+      {/* Expanded details (matches legacy "Show More" payload) */}
+      {expanded && (
+        <div className="grid grid-cols-1 gap-x-4 rounded-xl bg-muted/40 p-3 sm:grid-cols-2">
+          <DetailRow icon={Briefcase} label="Account">
+            {contact.account ?? "None"}
+          </DetailRow>
+          <DetailRow icon={CalendarPlus} label="Created">
+            {contact.createdAt}
+          </DetailRow>
+          <DetailRow icon={AtSign} label="Email">
+            {contact.email ? (
+              <a
+                href={`mailto:${contact.email}`}
+                className="text-primary underline-offset-2 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {contact.email}
+              </a>
+            ) : (
+              "None"
+            )}
+          </DetailRow>
+          {contact.bookedToday !== undefined && (
+            <DetailRow icon={Calendar} label="Booked today">
+              {contact.bookedToday} times
+            </DetailRow>
+          )}
+          <div className="sm:col-span-2">
+            <DetailRow icon={Users} label="Contacts">
+              <span className="flex flex-wrap gap-1">
+                {contact.contactsList.map((c) => (
+                  <span
+                    key={c}
+                    className="rounded bg-card px-1.5 py-0.5 text-[11px] text-primary"
+                  >
+                    {c}
+                  </span>
+                ))}
               </span>
-              <span>({contact.reviews})</span>
-              {contact.priceTier && (
-                <span className="font-medium text-foreground/80">
-                  · {contact.priceTier}
-                </span>
-              )}
+            </DetailRow>
+          </div>
+          <div className="sm:col-span-2">
+            <DetailRow icon={Building2} label="Sales Reps">
+              <span className="flex flex-wrap gap-1">
+                {contact.salesReps.map((r) => (
+                  <span
+                    key={r}
+                    className="rounded bg-card px-1.5 py-0.5 text-[11px] text-foreground underline-offset-2 hover:underline"
+                  >
+                    {r}
+                  </span>
+                ))}
+              </span>
+            </DetailRow>
+          </div>
+          {contact.nextTask && (
+            <div className="sm:col-span-2">
+              <DetailRow icon={Calendar} label="Next Task">
+                <span className="text-primary">{contact.nextTask}</span>
+              </DetailRow>
             </div>
-          </div>
-          <TypeBadge type={contact.type} />
+          )}
+          {contact.tags.length > 0 && (
+            <div className="sm:col-span-2 flex flex-wrap gap-1 pt-1">
+              {contact.tags.map((t) => (
+                <Badge
+                  key={t}
+                  variant="outline"
+                  className="text-[10px] font-medium"
+                >
+                  {t}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
+      )}
 
-        <div className="mt-1.5 flex items-start gap-1.5 text-xs text-muted-foreground">
-          <MapPin className="mt-0.5 size-3 shrink-0" />
-          <span className="line-clamp-1">{contact.address}</span>
-        </div>
+      {/* Footer: show more + action toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded((v) => !v);
+          }}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+        >
+          {expanded ? (
+            <>
+              <ChevronUp className="size-3.5" /> Show Less
+            </>
+          ) : (
+            <>
+              <ChevronDown className="size-3.5" /> Show More
+            </>
+          )}
+        </button>
 
-        {contact.bookedToday !== undefined && (
-          <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-            <Calendar className="size-3" />
-            Booked {contact.bookedToday} times today
-          </div>
-        )}
-
-        {/* Quick action chips (call / sms style like OpenTable times) */}
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {contact.phones.slice(0, 3).map((p, i) => (
-            <button
-              key={i}
-              onClick={(e) => e.stopPropagation()}
-              className={cn(
-                "inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-smooth",
-                p.isInactive
-                  ? "bg-muted text-muted-foreground line-through"
-                  : "bg-[hsl(var(--primary)/0.1)] text-primary hover:bg-primary hover:text-primary-foreground",
-              )}
-            >
-              <Phone className="size-3" />
-              {p.kind} {p.number}
-            </button>
-          ))}
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 rounded-md bg-[hsl(var(--accent)/0.12)] px-2 py-1 text-[11px] font-semibold text-accent hover:bg-accent hover:text-accent-foreground"
-          >
-            <MessageSquare className="size-3" />
-            SMS
-          </button>
+        <div className="flex flex-wrap items-center gap-0.5">
+          <ActionIcon icon={Eye} label="View notes" className="text-violet-600 hover:bg-violet-50" />
+          <ActionIcon icon={FileText} label="Add note" className="text-fuchsia-600 hover:bg-fuchsia-50" />
+          <ActionIcon icon={PlusCircle} label="Add task" className="text-sky-600 hover:bg-sky-50" />
+          <ActionIcon icon={CalendarPlus} label="Schedule" className="text-emerald-600 hover:bg-emerald-50" />
+          <ActionIcon icon={Pencil} label="Edit" className="text-blue-600 hover:bg-blue-50" />
+          <ActionIcon icon={Trash2} label="Delete" className="text-rose-600 hover:bg-rose-50" />
+          <ActionIcon icon={Mail} label="Email" className="text-orange-600 hover:bg-orange-50" />
+          <ActionIcon icon={UserPlus} label="Add contact" className="text-teal-600 hover:bg-teal-50" />
+          <ActionIcon icon={Route} label="Add to route" className="text-indigo-600 hover:bg-indigo-50" />
         </div>
       </div>
     </article>

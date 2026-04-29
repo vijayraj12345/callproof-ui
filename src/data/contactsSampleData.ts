@@ -18,6 +18,9 @@ export type Contact = {
   lng: number;
   phones: ContactPhone[];
   email: string | null;
+  account: string | null;
+  createdAt: string;
+  lastNote: string | null;
   lastContacted: string;
   nextTask?: string;
   salesReps: string[];
@@ -46,6 +49,9 @@ export const contactsSampleData: Contact[] = [
       { kind: "C", number: "234-523-4348" },
     ],
     email: null,
+    account: null,
+    createdAt: "Dec 12, 2024 · 4:32 PM",
+    lastNote: "Met with floor manager — sample sent.",
     lastContacted: "Feb 20, 2026 · 7:48 PM",
     nextTask: "Appointment — March 4",
     salesReps: ["AIT Tester", "CallProof Support", "divya rep", "Plusapp 100"],
@@ -71,6 +77,9 @@ export const contactsSampleData: Contact[] = [
       { kind: "O", number: "787-676-5654" },
     ],
     email: "contact@akronauto.com",
+    account: "Akron Auto Holdings",
+    createdAt: "Jan 18, 2025 · 9:14 AM",
+    lastNote: "Owner requested updated pricing sheet.",
     lastContacted: "April 7, 2025 · 12:45 PM",
     nextTask: "Follow up call",
     salesReps: ["AIT Tester", "divya rep"],
@@ -96,6 +105,9 @@ export const contactsSampleData: Contact[] = [
       { kind: "O", number: "123-234-5678" },
     ],
     email: "ops@northwind.io",
+    account: "Northwind Group",
+    createdAt: "Aug 03, 2025 · 2:20 PM",
+    lastNote: "Decision delayed to next quarter.",
     lastContacted: "Dec 19, 2025 · 12:42 PM",
     salesReps: ["CallProof Support"],
     contactsList: ["Arun K.", "Priya S."],
@@ -120,6 +132,9 @@ export const contactsSampleData: Contact[] = [
       { kind: "C", number: "503-555-9921" },
     ],
     email: "hello@sunrisecafe.com",
+    account: "Sunrise Hospitality",
+    createdAt: "Mar 02, 2024 · 10:05 AM",
+    lastNote: "Renewing supply contract — auto-billed.",
     lastContacted: "April 22, 2026 · 9:10 AM",
     nextTask: "Send Q2 proposal",
     salesReps: ["divya rep", "Plusapp 100"],
@@ -142,6 +157,9 @@ export const contactsSampleData: Contact[] = [
     lng: -97.74,
     phones: [{ kind: "O", number: "512-555-3344" }],
     email: "admin@civichealth.org",
+    account: "Civic Health Network",
+    createdAt: "Nov 11, 2025 · 8:48 AM",
+    lastNote: "Awaiting compliance review.",
     lastContacted: "Mar 11, 2026 · 4:02 PM",
     salesReps: ["AIT Tester"],
     contactsList: ["Dr. Patel", "Reception"],
@@ -166,6 +184,9 @@ export const contactsSampleData: Contact[] = [
       { kind: "C", number: "619-555-7799" },
     ],
     email: "sales@harbormarine.com",
+    account: "Harbor Marine LLC",
+    createdAt: "Jul 25, 2024 · 1:15 PM",
+    lastNote: "Bulk order shipped, follow up Friday.",
     lastContacted: "Feb 02, 2026 · 11:11 AM",
     nextTask: "Quote review",
     salesReps: ["CallProof Support", "divya rep"],
