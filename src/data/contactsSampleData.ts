@@ -18,6 +18,9 @@ export type Contact = {
   lng: number;
   phones: ContactPhone[];
   email: string | null;
+  account: string | null;
+  createdAt: string;
+  lastNote: string | null;
   lastContacted: string;
   nextTask?: string;
   salesReps: string[];
