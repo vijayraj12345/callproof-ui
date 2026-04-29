@@ -431,7 +431,7 @@ export function CallsView() {
                 pageRows.map((c) => {
                   const expanded = expandedRow === c.id;
                   return (
-                    <>
+                    <Fragment key={c.id}>
                       <TableRow key={c.id} className="group align-top">
                         <TableCell className="align-top">
                           <CallerCell call={c} expanded={expanded} onToggle={() => setExpandedRow(expanded ? null : c.id)} />
@@ -507,7 +507,7 @@ export function CallsView() {
                           </TableCell>
                         </TableRow>
                       )}
-                    </>
+                    </Fragment>
                   );
                 })
               )}
