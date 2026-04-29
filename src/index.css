@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 20% 98%;
+    --foreground: 240 15% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 15% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 15% 12%;
+
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 280 90% 65%;
+
+    --secondary: 240 10% 96%;
+    --secondary-foreground: 240 15% 12%;
+
+    --muted: 240 10% 96%;
+    --muted-foreground: 240 5% 45%;
+
+    --accent: 24 95% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --info: 210 95% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 10% 90%;
+    --input: 240 10% 90%;
+    --ring: 262 83% 58%;
+
+    --radius: 1rem;
+
+    /* Brand gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(280 90% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(24 95% 60%), hsl(340 90% 60%));
+    --gradient-info: linear-gradient(135deg, hsl(210 95% 55%), hsl(195 90% 55%));
+    --gradient-success: linear-gradient(135deg, hsl(160 84% 39%), hsl(180 75% 45%));
+    --gradient-warm: linear-gradient(135deg, hsl(24 95% 60%), hsl(45 95% 55%));
+    --gradient-soft: linear-gradient(135deg, hsl(262 100% 97%), hsl(280 100% 97%));
+    --gradient-hero: linear-gradient(135deg, hsl(262 83% 58% / 0.08), hsl(24 95% 60% / 0.08));
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(240 15% 12% / 0.04);
+    --shadow-md: 0 4px 16px -4px hsl(240 15% 12% / 0.08);
+    --shadow-lg: 0 12px 32px -8px hsl(240 15% 12% / 0.12);
+    --shadow-glow: 0 8px 32px -8px hsl(262 83% 58% / 0.35);
+    --shadow-accent-glow: 0 8px 32px -8px hsl(24 95% 60% / 0.35);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 240 15% 10%;
+    --sidebar-foreground: 240 5% 75%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 15% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 15% 18%;
+    --sidebar-ring: 262 83% 58%;
+  }
+
+  .dark {
+    --background: 240 15% 8%;
+    --foreground: 240 10% 95%;
+    --card: 240 15% 12%;
+    --card-foreground: 240 10% 95%;
+    --popover: 240 15% 12%;
+    --popover-foreground: 240 10% 95%;
+    --primary: 262 83% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 15% 18%;
+    --secondary-foreground: 240 10% 95%;
+    --muted: 240 15% 18%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 24 95% 60%;
+    --accent-foreground: 0 0% 100%;
+    --border: 240 15% 20%;
+    --input: 240 15% 20%;
+    --ring: 262 83% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+@layer utilities {
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-accent { background: var(--gradient-accent); }
+  .gradient-info { background: var(--gradient-info); }
+  .gradient-success { background: var(--gradient-success); }
+  .gradient-warm { background: var(--gradient-warm); }
+  .gradient-soft { background: var(--gradient-soft); }
+  .gradient-hero { background: var(--gradient-hero); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .shadow-accent-glow { box-shadow: var(--shadow-accent-glow); }
+  .shadow-soft { box-shadow: var(--shadow-md); }
+  .shadow-elevated { box-shadow: var(--shadow-lg); }
+  .transition-smooth { transition: var(--transition-smooth); }
+
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-accent {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  50% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
+}
+.animate-pulse-glow { animation: pulse-glow 2s infinite; }
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up { animation: slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+/* Index dashboard: soft glow pulse on KPI tiles and buttons (scoped via .dashboard-index-glow) */
+@keyframes dashboard-kpi-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 18px -6px rgb(0 0 0 / 0.22),
+      0 0 0 0 rgb(255 255 255 / 0);
+  }
+  50% {
+    box-shadow:
+      0 12px 36px -8px rgb(0 0 0 / 0.28),
+      0 0 28px 0 rgb(255 255 255 / 0.35);
+  }
+}
+
+@keyframes dashboard-btn-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 hsl(var(--primary) / 0.35),
+      0 2px 10px -2px hsl(var(--primary) / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 10px hsl(var(--primary) / 0),
+      0 6px 22px -4px hsl(var(--primary) / 0.45);
+  }
+}
+
+@layer utilities {
+  .dashboard-index-glow .dashboard-metric-tile {
+    animation: dashboard-kpi-glow 3s ease-in-out infinite;
+  }
+
+  .dashboard-index-glow :is(button, [role="button"]):not([role="switch"]):not([data-disabled]):not(:disabled) {
+    animation: dashboard-btn-glow 2.4s ease-in-out infinite;
+  }
+
+  .dashboard-index-glow :is(button, [role="button"]):disabled {
+    animation: none;
+  }
+}
