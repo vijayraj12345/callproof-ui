@@ -64,6 +64,7 @@ function spaPathForMenuUrl(url: string): string | null {
   if (p === "/dash/events" || p.startsWith("/dash/events/")) return "/events";
   const roots = [
     "/users",
+    "/route",
     "/contacts",
     "/funnel/goals",
     "/funnel/new",
@@ -72,6 +73,7 @@ function spaPathForMenuUrl(url: string): string | null {
     "/appointments",
     "/followups",
     "/events",
+    "/sms",
   ];
   for (const r of roots) {
     if (p === r || p.startsWith(`${r}/`)) return p;
@@ -452,9 +454,6 @@ export const Sidebar = ({
                 Personal Settings
               </TooltipContent>
             </Tooltip>
-            <div className="mt-2 flex size-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-[9px] font-bold leading-tight text-slate-600">
-              CRM
-            </div>
           </div>
 
           <input type="hidden" id="defaultImage" value={DEFAULT_USER_ICON} readOnly aria-hidden />

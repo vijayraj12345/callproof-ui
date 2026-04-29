@@ -21,7 +21,7 @@ export const TodaySchedule = () => {
         </button>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-border bg-card p-4 shadow-soft">
+      <div className="kpi-card flex min-h-0 flex-1 flex-col rounded-2xl p-4 shadow-soft">
         <div className="flex min-h-0 flex-1 flex-col space-y-3">
           {events.map((e, i) => (
             <div

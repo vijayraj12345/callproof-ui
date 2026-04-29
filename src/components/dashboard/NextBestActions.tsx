@@ -11,7 +11,7 @@ const actions = [
 
 export const NextBestActions = () => {
   return (
-    <div className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-soft animate-slide-up">
+    <div className="kpi-card rounded-2xl p-5 shadow-soft md:p-6 animate-slide-up">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg gradient-accent flex items-center justify-center">

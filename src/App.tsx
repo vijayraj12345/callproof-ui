@@ -12,9 +12,11 @@ import Followups from "./pages/Followups.tsx";
 import NotesReport from "./pages/NotesReport.tsx";
 import OpportunitiesFunnel from "./pages/OpportunitiesFunnel.tsx";
 import OpportunitiesReport from "./pages/OpportunitiesReport.tsx";
+import Sms from "./pages/Sms.tsx";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import UsersLayout from "./pages/UsersLayout.tsx";
+import RoutePage from "./pages/Route.tsx";
 import { CompanyDirectoryView } from "./components/company-directory/CompanyDirectoryView.tsx";
 import { CompanyDirectoryRepView } from "./components/company-directory/CompanyDirectoryRepView.tsx";
 
@@ -46,6 +48,10 @@ const App = () => (
           <Route path="/followups/" element={<Followups />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/" element={<Events />} />
+          <Route path="/sms" element={<Sms />} />
+          <Route path="/sms/" element={<Sms />} />
+          <Route path="/route" element={<RoutePage />} />
+          <Route path="/route/" element={<RoutePage />} />
           <Route path="/dash/events" element={<Navigate to="/events" replace />} />
           <Route path="/dash/events/" element={<Navigate to="/events" replace />} />
           <Route path="/users" element={<UsersLayout />}>

@@ -7,11 +7,13 @@ import {
   Eye,
   FileSpreadsheet,
   Filter,
+  Info,
   Mail,
   Pencil,
   PhoneIncoming,
   PhoneMissed,
   PhoneOutgoing,
+  Sparkles,
   Star,
   ChevronDown,
 } from "lucide-react";
@@ -22,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -56,6 +59,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableScrollViewport,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -206,7 +210,12 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
   );
 }
 
-function AudioPlayer({ call }: { call: CallRecord }) {
+function phoneDigits(phone: string): string {
+  const d = phone.replace(/\D/g, "");
+  return d || phone;
+}
+
+function AudioPlayer({ call, onOpenTranscription }: { call: CallRecord; onOpenTranscription: (c: CallRecord) => void }) {
   if (!call.audioUrl) {
     return <p className="rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Audio not available</p>;
   }
@@ -216,6 +225,21 @@ function AudioPlayer({ call }: { call: CallRecord }) {
         Your browser does not support the audio element.
       </audio>
       <div className="flex items-center gap-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 rounded-full border-2 border-primary bg-primary/5 text-primary shadow-sm hover:bg-primary/10"
+              aria-label="Recorded call transcription and AI summary"
+              onClick={() => onOpenTranscription(call)}
+            >
+              <Info className="size-4 stroke-[2.5]" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Transcription &amp; AI summary</TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -262,6 +286,7 @@ export function CallsView() {
 
   const [viewNotes, setViewNotes] = useState<{ id: number; title: string; body: string } | null>(null);
   const [editNotes, setEditNotes] = useState<{ id: number; text: string } | null>(null);
+  const [transcriptionCall, setTranscriptionCall] = useState<CallRecord | null>(null);
 
   const callerOptions = useMemo(
     () => [...new Set(calls.map((c) => c.caller))].sort((a, b) => a.localeCompare(b)),
@@ -405,10 +430,11 @@ export function CallsView() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
-          <Table>
-            <TableHeader>
-              <TableRow className={cn("hover:bg-transparent data-[state=selected]:bg-transparent", callsHeaderRowClass)}>
+        <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+          <TableScrollViewport label="Call history">
+            <Table>
+              <TableHeader>
+                <TableRow className={cn("hover:bg-transparent data-[state=selected]:bg-transparent", callsHeaderRowClass)}>
                 <TableHead className={cn(callsThClass, "min-w-[260px]")}>Caller</TableHead>
                 <TableHead className={cn(callsThClass, "w-[140px]")}>Call Direction</TableHead>
                 <TableHead className={cn(callsThClass, "min-w-[200px]")}>Contact / Number</TableHead>
@@ -501,7 +527,7 @@ export function CallsView() {
                               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Recording
                               </p>
-                              <AudioPlayer call={c} />
+                              <AudioPlayer call={c} onOpenTranscription={setTranscriptionCall} />
                             </div>
                           </TableCell>
                         </TableRow>
@@ -511,43 +537,46 @@ export function CallsView() {
                 })
               )}
             </TableBody>
-          </Table>
+            </Table>
+          </TableScrollViewport>
+          <div className="border-t border-border bg-muted/5">
+            <PagedTableFooter
+              embedded
+              aria-label="Calls table pagination"
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={setRowsPerPage}
+              rowOptions={ROWS_OPTIONS}
+              summaryFrom={summaryFrom}
+              summaryTo={summaryTo}
+              total={total}
+              page={safePage}
+              pageCount={pageCount}
+              onPageChange={setPage}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                  onClick={() => toast.success("Exporting mobile calls…")}
+                >
+                  <FileSpreadsheet className="size-4" />
+                  Export Mobile Calls
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                  onClick={() => toast.success("Exporting recorded calls…")}
+                >
+                  <FileSpreadsheet className="size-4" />
+                  Export Recorded Calls
+                </Button>
+              </div>
+            </PagedTableFooter>
+          </div>
         </div>
       </div>
-
-      <PagedTableFooter
-        aria-label="Calls table pagination"
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={setRowsPerPage}
-        rowOptions={ROWS_OPTIONS}
-        summaryFrom={summaryFrom}
-        summaryTo={summaryTo}
-        total={total}
-        page={safePage}
-        pageCount={pageCount}
-        onPageChange={setPage}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-            onClick={() => toast.success("Exporting mobile calls…")}
-          >
-            <FileSpreadsheet className="size-4" />
-            Export Mobile Calls
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-            onClick={() => toast.success("Exporting recorded calls…")}
-          >
-            <FileSpreadsheet className="size-4" />
-            Export Recorded Calls
-          </Button>
-        </div>
-      </PagedTableFooter>
 
       {/* Filter sheet */}
       <Sheet
@@ -657,6 +686,65 @@ export function CallsView() {
                 Edit note
               </Button>
             )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Recorded call transcription + AI summary */}
+      <Dialog open={!!transcriptionCall} onOpenChange={(o) => !o && setTranscriptionCall(null)}>
+        <DialogContent
+          className={cn(
+            "flex max-h-[min(90vh,720px)] max-w-xl flex-col gap-0 overflow-hidden border-0 p-0 sm:rounded-xl",
+            "[&>button]:right-3 [&>button]:top-3.5 [&>button]:text-white [&>button]:opacity-100 hover:[&>button]:bg-white/15 hover:[&>button]:text-white",
+          )}
+        >
+          <div className="bg-[#094E9B] px-4 py-3 pr-14">
+            <DialogTitle className="text-base font-semibold tracking-tight text-white">Recorded Call Transcription</DialogTitle>
+            <DialogDescription className="sr-only">
+              Transcription and AI-generated summary for the selected call recording.
+            </DialogDescription>
+          </div>
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+            {transcriptionCall && (
+              <>
+                <p className="text-sm font-semibold text-foreground">
+                  Recorded {transcriptionCall.direction} call from {phoneDigits(transcriptionCall.callerPhone)}
+                </p>
+                {transcriptionCall.aiSummary ? (
+                  <section className="rounded-lg border border-violet-200/80 bg-violet-50/70 p-3 dark:border-violet-900/50 dark:bg-violet-950/35">
+                    <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-violet-800 dark:text-violet-200">
+                      <Sparkles className="size-4 shrink-0" aria-hidden />
+                      AI summary
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-foreground">{transcriptionCall.aiSummary}</p>
+                  </section>
+                ) : null}
+                <section>
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Transcription</h3>
+                  <div className="mt-2 space-y-3 rounded-md border border-border bg-muted/25 p-3">
+                    {transcriptionCall.transcript && transcriptionCall.transcript.length > 0 ? (
+                      transcriptionCall.transcript.map((line, i) => (
+                        <div key={`${line.speaker}-${i}-${line.timeRange}`} className="text-sm">
+                          <p>
+                            <span className="font-semibold text-rose-600 dark:text-rose-400">{line.speaker}</span>{" "}
+                            <span className="font-mono text-xs font-medium text-emerald-600 dark:text-emerald-400">{line.timeRange}</span>
+                          </p>
+                          <p className="mt-0.5 text-foreground">{line.text}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No transcript lines are available for this recording yet.</p>
+                    )}
+                  </div>
+                </section>
+                <p className="text-center text-xs font-medium text-muted-foreground">Recorded Call Conversation.</p>
+              </>
+            )}
+          </div>
+          <DialogFooter className="border-t border-border/60 bg-muted/20 px-4 py-3 sm:justify-center">
+            <Button type="button" variant="secondary" onClick={() => setTranscriptionCall(null)}>
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

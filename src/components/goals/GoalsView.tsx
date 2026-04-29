@@ -48,6 +48,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableScrollViewport,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -339,15 +340,16 @@ export function GoalsView() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
-        <Table>
-          <TableHeader>
-            <TableRow
-              className={cn(
-                "hover:bg-transparent data-[state=selected]:bg-transparent",
-                goalsHeaderRowClass,
-              )}
-            >
+        <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+          <TableScrollViewport label="Goals">
+            <Table>
+              <TableHeader>
+                <TableRow
+                  className={cn(
+                    "hover:bg-transparent data-[state=selected]:bg-transparent",
+                    goalsHeaderRowClass,
+                  )}
+                >
               <TableHead className={cn(goalsThClass, "min-w-[200px]")}>User / Market</TableHead>
               <TableHead className={cn(goalsThClass, "min-w-[100px]")}>Goal</TableHead>
               <TableHead className={cn(goalsThClass, "min-w-[140px]")}>End date</TableHead>
@@ -455,23 +457,26 @@ export function GoalsView() {
                 </TableRow>
               ))
             )}
-          </TableBody>
-        </Table>
+              </TableBody>
+            </Table>
+          </TableScrollViewport>
+          <div className="border-t border-border bg-muted/5">
+            <PagedTableFooter
+              embedded
+              aria-label="Goals table pagination"
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={setRowsPerPage}
+              rowOptions={ROWS_OPTIONS}
+              summaryFrom={summaryFrom}
+              summaryTo={summaryTo}
+              total={total}
+              page={safePage}
+              pageCount={pageCount}
+              onPageChange={setPage}
+            />
+          </div>
         </div>
       </div>
-
-      <PagedTableFooter
-        aria-label="Goals table pagination"
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={setRowsPerPage}
-        rowOptions={ROWS_OPTIONS}
-        summaryFrom={summaryFrom}
-        summaryTo={summaryTo}
-        total={total}
-        page={safePage}
-        pageCount={pageCount}
-        onPageChange={setPage}
-      />
 
       <Sheet
         open={filterSheetOpen}

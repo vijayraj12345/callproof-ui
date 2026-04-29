@@ -10,7 +10,7 @@ export const TeamPerformance = () => {
         <h3 className="font-bold">Team Performance</h3>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-border bg-card p-5 shadow-soft">
+      <div className="kpi-card flex min-h-0 flex-1 flex-col rounded-2xl p-5 shadow-soft">
         <div className="mb-4 flex shrink-0 items-center gap-3">
           <div className="relative">
             <div className="w-11 h-11 rounded-full gradient-info flex items-center justify-center text-white font-bold text-sm">A1</div>

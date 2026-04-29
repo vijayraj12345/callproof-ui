@@ -46,6 +46,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PagedTableFooter } from "@/components/ui/paged-table-footer";
+import { TableScrollViewport } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -63,8 +64,17 @@ const reportHeaderRowClass = cn(
 );
 
 const reportThClass = cn(
-  "px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white sm:px-4",
+  "min-w-0 px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white sm:px-4",
 );
+
+/**
+ * `w-full` + trailing `1fr` so the gradient header row spans the full card; `min-w-0` on tracks
+ * avoids overflow. Parent uses `min-w-full w-max` so we still get horizontal scroll when the
+ * grid is wider than the viewport.
+ */
+/** `lg:min-w-*` keeps horizontal scroll on narrow widths; `w-full` + `fr` fills the main column so no dead strip before the AI sidebar. */
+const reportGridClass =
+  "grid min-w-0 w-full grid-cols-[minmax(180px,1.15fr)_minmax(140px,1fr)_100px_130px_minmax(200px,1.3fr)_96px_minmax(220px,1fr)] gap-2 lg:min-w-[1096px]";
 
 const SEGMENTS: { id: OppReportSegment | "all"; label: string; short: string; icon: typeof Flame; iconClass: string }[] = [
   { id: "hot", label: "Hot Deals (AI Predicted)", short: "Hot", icon: Flame, iconClass: "text-orange-500" },
@@ -137,6 +147,118 @@ function InsightIcon({ trend }: { trend: ReportOppRow["insightTrend"] }) {
   return <ArrowDownRight className="mt-0.5 size-4 shrink-0 text-rose-600" aria-hidden />;
 }
 
+function OpportunityReportRowCard({ r }: { r: ReportOppRow }) {
+  return (
+    <article className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm transition-shadow hover:shadow-md lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:hover:bg-muted/20">
+      <div className={cn("grid gap-4", reportGridClass, "lg:items-center lg:gap-2 lg:px-2 lg:py-4")}>
+        <div className="flex min-w-0 gap-3 border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
+          <div
+            className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold text-foreground ring-1 ring-border/60"
+            aria-hidden
+          >
+            {initialsFromCompany(r.companyName)}
+          </div>
+          <div className="min-w-0">
+            <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Opportunity / Account</p>
+            <h3 className="break-words font-bold leading-snug text-foreground">{r.companyName}</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">{r.opportunityId}</p>
+          </div>
+        </div>
+
+        <div className="min-w-0 border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
+          <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Stage / Type</p>
+          <Badge variant="outline" className={cn("font-semibold", stageBadgeClasses(r.stageTone))}>
+            {r.stageLabel} — {r.stagePct}%
+          </Badge>
+          <p className="mt-1.5 break-words text-xs text-muted-foreground">{r.saleType}</p>
+        </div>
+
+        <div className="min-w-0 border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
+          <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Value</p>
+          <p className="font-mono text-sm font-bold tabular-nums text-foreground">{formatUsd(r.value)}</p>
+        </div>
+
+        <div className="min-w-0 border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
+          <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">AI Confidence</p>
+          <ConfidenceRing pct={r.confidencePct} visual={r.confidenceVisual} />
+        </div>
+
+        <div className="min-w-0 border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
+          <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">AI Insight</p>
+          <div className="flex min-w-0 gap-2">
+            <InsightIcon trend={r.insightTrend} />
+            <p className="min-w-0 break-words text-sm leading-snug text-foreground">{r.aiInsight}</p>
+          </div>
+          <p className="mt-1 text-[11px] italic text-muted-foreground">AI suggests acting within 24h on priority signals.</p>
+        </div>
+
+        <div className="min-w-0 border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
+          <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Engagement</p>
+          <svg viewBox="0 0 72 24" className="h-8 w-full max-w-[88px]" aria-hidden>
+            <polyline
+              fill="none"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={r.sparkPts}
+              className={r.insightTrend === "risk" ? "stroke-rose-500" : "stroke-primary"}
+            />
+          </svg>
+          <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <Mail className="size-3.5 text-primary" />
+              {r.emails7d} emails
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Phone className="size-3.5 text-primary" />
+              {r.calls7d} calls
+            </span>
+          </div>
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-2 lg:min-w-0">
+          <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Next best action</p>
+          <div className="inline-flex w-full max-w-[220px] rounded-md shadow-sm">
+            <Button
+              type="button"
+              size="sm"
+              className="h-9 flex-1 gap-1 rounded-r-none gradient-primary px-3 text-primary-foreground"
+              onClick={() => toast.success("Call scheduled (demo)")}
+            >
+              <Phone className="size-3.5" />
+              Schedule Call
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-9 rounded-l-none border-l border-primary-foreground/25 px-2 gradient-primary text-primary-foreground"
+                  aria-label="More actions"
+                >
+                  <ChevronDown className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => toast.message("Follow-up email")}>Send follow-up</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast.message("Log touch")}>Log touch</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast.message("Snooze")}>Snooze 3 days</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <button
+            type="button"
+            className="text-left text-xs font-semibold text-primary hover:underline"
+            onClick={() => toast.success("AI message draft (demo)")}
+          >
+            AI Message
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function OpportunitiesReportView() {
   const [rows] = useState<ReportOppRow[]>(opportunitiesReportRows);
   const [segment, setSegment] = useState<OppReportSegment | "all">("hot");
@@ -169,8 +291,8 @@ export function OpportunitiesReportView() {
   const hotPreview = useMemo(() => rows.filter((r) => r.segment === "hot").slice(0, 3), [rows]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 xl:flex-row xl:items-start">
-      <div className="min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto">
+    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-4 xl:flex-row xl:items-stretch">
+      <div className="flex min-h-0 min-w-0 w-full max-w-full flex-1 flex-col space-y-4 overflow-y-auto overflow-x-hidden">
         <header className="relative overflow-hidden rounded-2xl border border-primary/15 p-4 shadow-soft sm:p-5">
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.12] via-violet-500/[0.07] to-accent/[0.12]"
@@ -344,167 +466,77 @@ export function OpportunitiesReportView() {
           </div>
         </div>
 
-        {/* Column header (Goals-style gradient) */}
-        <div className="hidden overflow-hidden rounded-t-2xl border border-b-0 border-border/60 lg:block">
-          <div className={cn("grid grid-cols-[minmax(200px,1.5fr)_minmax(160px,1.1fr)_100px_130px_minmax(200px,1.3fr)_96px_minmax(200px,1.2fr)] gap-2", reportHeaderRowClass)}>
-            <div className={reportThClass}>Opportunity / Account</div>
-            <div className={reportThClass}>Stage / Type</div>
-            <div className={reportThClass}>Value</div>
-            <div className={reportThClass}>AI Confidence</div>
-            <div className={reportThClass}>AI Insight</div>
-            <div className={reportThClass}>Engagement</div>
-            <div className={reportThClass}>Next best action</div>
+        {/* Goals-style card: horizontal scroll only above footer; pb reserves space so the scrollbar does not sit on the last row */}
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+          <div className="hidden min-w-0 lg:block">
+            <TableScrollViewport label="Opportunities report" className="w-full min-w-0 pb-4">
+              <div className="w-full min-w-0">
+                <div className={cn("overflow-hidden", reportGridClass, reportHeaderRowClass)}>
+                  <div className={reportThClass}>Opportunity / Account</div>
+                  <div className={reportThClass}>Stage / Type</div>
+                  <div className={reportThClass}>Value</div>
+                  <div className={reportThClass}>AI Confidence</div>
+                  <div className={reportThClass}>AI Insight</div>
+                  <div className={reportThClass}>Engagement</div>
+                  <div className={reportThClass}>Next best action</div>
+                </div>
+                {pageRows.length === 0 ? (
+                  <div className="border-t border-border/60 px-4 py-16 text-center text-sm text-muted-foreground">
+                    No opportunities in this segment.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border/60">
+                    {pageRows.map((r) => (
+                      <OpportunityReportRowCard key={r.id} r={r} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TableScrollViewport>
+          </div>
+
+          <div className="space-y-3 p-3 lg:hidden">
+            {pageRows.length === 0 ? (
+              <div className="rounded-2xl border border-dashed py-16 text-center text-sm text-muted-foreground">
+                No opportunities in this segment.
+              </div>
+            ) : (
+              pageRows.map((r) => <OpportunityReportRowCard key={r.id} r={r} />)
+            )}
+          </div>
+
+          <div className="shrink-0 border-t border-border bg-muted/5">
+            <PagedTableFooter
+              embedded
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(n) => {
+                setRowsPerPage(n);
+                setPage(1);
+              }}
+              rowOptions={ROWS_OPTIONS}
+              summaryFrom={summaryFrom}
+              summaryTo={summaryTo}
+              total={total}
+              page={safePage}
+              pageCount={pageCount}
+              onPageChange={setPage}
+              aria-label="Opportunities report pagination"
+            >
+              <Button type="button" variant="outline" size="sm" className="gap-2 border-border/80 bg-card" onClick={() => toast.success("Export started (demo)")}>
+                <FileSpreadsheet className="size-4" />
+                Export Report
+              </Button>
+              <Button type="button" variant="outline" size="sm" className="gap-2 border-border/80 bg-card" onClick={() => toast.message("Schedule exports")}>
+                <CalendarClock className="size-4" />
+                Schedule Exports
+              </Button>
+            </PagedTableFooter>
           </div>
         </div>
-
-        {/* Card rows */}
-        <div className="space-y-3 lg:-mt-3 lg:space-y-0 lg:rounded-b-2xl lg:border lg:border-t-0 lg:border-border/60 lg:bg-card lg:p-2">
-          {pageRows.length === 0 ? (
-            <div className="rounded-2xl border border-dashed py-16 text-center text-sm text-muted-foreground">No opportunities in this segment.</div>
-          ) : (
-            pageRows.map((r) => (
-              <article
-                key={r.id}
-                className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm transition-shadow hover:shadow-md lg:border-0 lg:shadow-none lg:hover:bg-muted/20"
-              >
-                <div className="grid gap-4 lg:grid-cols-[minmax(200px,1.5fr)_minmax(160px,1.1fr)_100px_130px_minmax(200px,1.3fr)_96px_minmax(200px,1.2fr)] lg:items-center lg:gap-2 lg:px-2 lg:py-4">
-                  <div className="flex gap-3 border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
-                    <div
-                      className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold text-foreground ring-1 ring-border/60"
-                      aria-hidden
-                    >
-                      {initialsFromCompany(r.companyName)}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Opportunity / Account</p>
-                      <h3 className="font-bold leading-snug text-foreground">{r.companyName}</h3>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{r.opportunityId}</p>
-                    </div>
-                  </div>
-
-                  <div className="border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
-                    <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Stage / Type</p>
-                    <Badge variant="outline" className={cn("font-semibold", stageBadgeClasses(r.stageTone))}>
-                      {r.stageLabel} — {r.stagePct}%
-                    </Badge>
-                    <p className="mt-1.5 text-xs text-muted-foreground">{r.saleType}</p>
-                  </div>
-
-                  <div className="border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
-                    <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Value</p>
-                    <p className="font-mono text-sm font-bold tabular-nums text-foreground">{formatUsd(r.value)}</p>
-                  </div>
-
-                  <div className="border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
-                    <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">AI Confidence</p>
-                    <ConfidenceRing pct={r.confidencePct} visual={r.confidenceVisual} />
-                  </div>
-
-                  <div className="border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
-                    <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">AI Insight</p>
-                    <div className="flex gap-2">
-                      <InsightIcon trend={r.insightTrend} />
-                      <p className="text-sm leading-snug text-foreground">{r.aiInsight}</p>
-                    </div>
-                    <p className="mt-1 text-[11px] italic text-muted-foreground">AI suggests acting within 24h on priority signals.</p>
-                  </div>
-
-                  <div className="border-b border-border/40 pb-3 lg:border-b-0 lg:pb-0">
-                    <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Engagement</p>
-                    <svg viewBox="0 0 72 24" className="h-8 w-full max-w-[88px]" aria-hidden>
-                      <polyline
-                        fill="none"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        points={r.sparkPts}
-                        className={r.insightTrend === "risk" ? "stroke-rose-500" : "stroke-primary"}
-                      />
-                    </svg>
-                    <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                      <span className="inline-flex items-center gap-1">
-                        <Mail className="size-3.5 text-primary" />
-                        {r.emails7d} emails
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Phone className="size-3.5 text-primary" />
-                        {r.calls7d} calls
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <p className="lg:hidden text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Next best action</p>
-                    <div className="inline-flex w-full max-w-[220px] rounded-md shadow-sm">
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="h-9 flex-1 gap-1 rounded-r-none gradient-primary px-3 text-primary-foreground"
-                        onClick={() => toast.success("Call scheduled (demo)")}
-                      >
-                        <Phone className="size-3.5" />
-                        Schedule Call
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            type="button"
-                            size="sm"
-                            className="h-9 rounded-l-none border-l border-primary-foreground/25 px-2 gradient-primary text-primary-foreground"
-                            aria-label="More actions"
-                          >
-                            <ChevronDown className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={() => toast.message("Follow-up email")}>Send follow-up</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast.message("Log touch")}>Log touch</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast.message("Snooze")}>Snooze 3 days</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    <button
-                      type="button"
-                      className="text-left text-xs font-semibold text-primary hover:underline"
-                      onClick={() => toast.success("AI message draft (demo)")}
-                    >
-                      AI Message
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-
-        <PagedTableFooter
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(n) => {
-            setRowsPerPage(n);
-            setPage(1);
-          }}
-          rowOptions={ROWS_OPTIONS}
-          summaryFrom={summaryFrom}
-          summaryTo={summaryTo}
-          total={total}
-          page={safePage}
-          pageCount={pageCount}
-          onPageChange={setPage}
-          aria-label="Opportunities report pagination"
-        >
-          <Button type="button" variant="outline" size="sm" className="gap-2 border-border/80 bg-card" onClick={() => toast.success("Export started (demo)")}>
-            <FileSpreadsheet className="size-4" />
-            Export Report
-          </Button>
-          <Button type="button" variant="outline" size="sm" className="gap-2 border-border/80 bg-card" onClick={() => toast.message("Schedule exports")}>
-            <CalendarClock className="size-4" />
-            Schedule Exports
-          </Button>
-        </PagedTableFooter>
       </div>
 
       {/* AI Assistant — right panel (desktop) */}
-      <aside className="flex w-full shrink-0 flex-col gap-3 xl:sticky xl:top-4 xl:w-[340px]">
+      <aside className="flex w-full shrink-0 flex-col gap-3 xl:sticky xl:top-4 xl:w-[340px] xl:min-w-[340px] xl:max-w-[340px]">
         <Card className="overflow-hidden rounded-2xl border-border/80 shadow-soft">
           <div className="flex items-center justify-between border-b border-border/60 bg-muted/30 px-4 py-3">
             <div className="flex items-center gap-2">

@@ -59,6 +59,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableScrollViewport,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardContent } from "@/components/ui/card";
@@ -210,15 +211,16 @@ export function AppointmentsView() {
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 xl:flex-row xl:items-start">
           <div className="min-w-0 flex-1 space-y-4">
-            <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
-              <Table>
-                <TableHeader>
-                  <TableRow
-                    className={cn(
-                      "hover:bg-transparent data-[state=selected]:bg-transparent",
-                      appointmentsHeaderRowClass,
-                    )}
-                  >
+            <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+              <TableScrollViewport label="Appointments">
+                <Table>
+                  <TableHeader>
+                    <TableRow
+                      className={cn(
+                        "hover:bg-transparent data-[state=selected]:bg-transparent",
+                        appointmentsHeaderRowClass,
+                      )}
+                    >
                     <TableHead className={cn(appointmentsThClass, "w-12 pl-3")}>
                       <span className="sr-only">Select</span>
                     </TableHead>
@@ -398,7 +400,44 @@ export function AppointmentsView() {
                     })
                   )}
                 </TableBody>
-              </Table>
+                </Table>
+              </TableScrollViewport>
+              <div className="border-t border-border bg-muted/5">
+                <PagedTableFooter
+                  embedded
+                  aria-label="Appointments table pagination"
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={setRowsPerPage}
+                  rowOptions={ROWS_OPTIONS}
+                  summaryFrom={summaryFrom}
+                  summaryTo={summaryTo}
+                  total={total}
+                  page={safePage}
+                  pageCount={pageCount}
+                  onPageChange={setPage}
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                      onClick={() => toast.success("Exporting appointments report…")}
+                    >
+                      <FileSpreadsheet className="size-4" />
+                      Export appointments report
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                      onClick={() => toast.message("Schedule appointment exports")}
+                    >
+                      <Calendar className="size-4" />
+                      Schedule exports
+                    </Button>
+                  </div>
+                </PagedTableFooter>
+              </div>
             </div>
           </div>
 
@@ -454,40 +493,6 @@ export function AppointmentsView() {
           </aside>
         </div>
       </div>
-
-      <PagedTableFooter
-        aria-label="Appointments table pagination"
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={setRowsPerPage}
-        rowOptions={ROWS_OPTIONS}
-        summaryFrom={summaryFrom}
-        summaryTo={summaryTo}
-        total={total}
-        page={safePage}
-        pageCount={pageCount}
-        onPageChange={setPage}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-            onClick={() => toast.success("Exporting appointments report…")}
-          >
-            <FileSpreadsheet className="size-4" />
-            Export appointments report
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-            onClick={() => toast.message("Schedule appointment exports")}
-          >
-            <Calendar className="size-4" />
-            Schedule exports
-          </Button>
-        </div>
-      </PagedTableFooter>
 
       <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
         <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">

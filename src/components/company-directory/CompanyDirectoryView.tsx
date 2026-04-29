@@ -49,6 +49,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableScrollViewport,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -227,15 +228,16 @@ export function CompanyDirectoryView() {
           </div>
         </header>
 
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
-          <Table>
-            <TableHeader>
-              <TableRow
-                className={cn(
-                  "hover:bg-transparent data-[state=selected]:bg-transparent",
-                  directoryHeaderRowClass,
-                )}
-              >
+        <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+          <TableScrollViewport label="Company directory">
+            <Table>
+              <TableHeader>
+                <TableRow
+                  className={cn(
+                    "hover:bg-transparent data-[state=selected]:bg-transparent",
+                    directoryHeaderRowClass,
+                  )}
+                >
                 <TableHead className={cn(directoryThClass, "min-w-[220px]")}>Name</TableHead>
                 <TableHead className={cn(directoryThClass, "min-w-[200px]")}>Address</TableHead>
                 <TableHead className={cn(directoryThClass, "min-w-[140px]")}>Markets</TableHead>
@@ -365,32 +367,35 @@ export function CompanyDirectoryView() {
                 ))
               )}
             </TableBody>
-          </Table>
+            </Table>
+          </TableScrollViewport>
+          <div className="border-t border-border bg-muted/5">
+            <PagedTableFooter
+              embedded
+              aria-label="Company directory pagination"
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={setRowsPerPage}
+              rowOptions={ROWS_OPTIONS}
+              summaryFrom={summaryFrom}
+              summaryTo={summaryTo}
+              total={total}
+              page={safePage}
+              pageCount={pageCount}
+              onPageChange={setPage}
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                onClick={() => toast.success("Exporting rep search results…")}
+              >
+                <FileSpreadsheet className="size-4" />
+                Export rep search results
+              </Button>
+            </PagedTableFooter>
+          </div>
         </div>
       </div>
-
-      <PagedTableFooter
-        aria-label="Company directory pagination"
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={setRowsPerPage}
-        rowOptions={ROWS_OPTIONS}
-        summaryFrom={summaryFrom}
-        summaryTo={summaryTo}
-        total={total}
-        page={safePage}
-        pageCount={pageCount}
-        onPageChange={setPage}
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-          onClick={() => toast.success("Exporting rep search results…")}
-        >
-          <FileSpreadsheet className="size-4" />
-          Export rep search results
-        </Button>
-      </PagedTableFooter>
 
       <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
         <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">

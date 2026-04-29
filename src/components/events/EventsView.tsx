@@ -61,6 +61,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableScrollViewport,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -279,12 +280,13 @@ export function EventsView() {
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 xl:flex-row xl:items-start">
           <div className="min-w-0 flex-1 space-y-4">
-            <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
-              <Table>
-                <TableHeader>
-                  <TableRow
-                    className={cn("hover:bg-transparent data-[state=selected]:bg-transparent", eventsHeaderRowClass)}
-                  >
+            <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+              <TableScrollViewport label="Events">
+                <Table>
+                  <TableHeader>
+                    <TableRow
+                      className={cn("hover:bg-transparent data-[state=selected]:bg-transparent", eventsHeaderRowClass)}
+                    >
                     <TableHead className={cn(eventsThClass, "min-w-[220px]")}>Event</TableHead>
                     <TableHead className={cn(eventsThClass, "min-w-[280px]")}>Details</TableHead>
                     <TableHead className={cn(eventsThClass, "w-[160px]")}>Time</TableHead>
@@ -404,24 +406,27 @@ export function EventsView() {
                     })
                   )}
                 </TableBody>
-              </Table>
+                </Table>
+              </TableScrollViewport>
+              <div className="border-t border-border bg-muted/5">
+                <PagedTableFooter
+                  embedded
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={(n) => {
+                    setRowsPerPage(n);
+                    setPage(1);
+                  }}
+                  rowOptions={ROWS_OPTIONS}
+                  summaryFrom={summaryFrom}
+                  summaryTo={summaryTo}
+                  total={total}
+                  page={safePage}
+                  pageCount={pageCount}
+                  onPageChange={setPage}
+                  aria-label="Events pagination"
+                />
+              </div>
             </div>
-
-            <PagedTableFooter
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(n) => {
-                setRowsPerPage(n);
-                setPage(1);
-              }}
-              rowOptions={ROWS_OPTIONS}
-              summaryFrom={summaryFrom}
-              summaryTo={summaryTo}
-              total={total}
-              page={safePage}
-              pageCount={pageCount}
-              onPageChange={setPage}
-              aria-label="Events pagination"
-            />
           </div>
 
           <aside className="flex w-full shrink-0 flex-col gap-4 xl:sticky xl:top-4 xl:w-[300px]">

@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      screens: {
+        xs: "480px",
+        "3xl": "1920px",
+      },
       fontFamily: {
         sans: ["Roboto", "ui-sans-serif", "system-ui", "sans-serif"],
       },

@@ -2,11 +2,41 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Default max width for cell content (th/td). Override on any ancestor:
+ * `style={{ ["--table-cell-max" as string]: "18rem" }}` or `className="[--table-cell-max:min(28rem,60vw)]"`.
+ */
+const tableCellCapClass =
+  "min-w-0 max-w-[var(--table-cell-max,min(22rem,calc(100vw_-_3rem)))] break-words [overflow-wrap:anywhere]";
+
+export type TableScrollViewportProps = React.HTMLAttributes<HTMLDivElement> & {
+  /** e.g. "Goals data" → aria-label "Goals data — scroll horizontally" */
+  label?: string;
+};
+
+/**
+ * Horizontal scroll only — place directly around `<Table>` so the scrollbar sits
+ * under the table rows (not below pagination). Pagination stays outside this node.
+ */
+const TableScrollViewport = React.forwardRef<HTMLDivElement, TableScrollViewportProps>(
+  ({ className, label, ...props }, ref) => (
+    <div
+      ref={ref}
+      role="region"
+      aria-label={label ? `${label} — scroll horizontally` : "Table — scroll horizontally"}
+      className={cn(
+        "relative min-w-0 w-full max-w-full overflow-x-auto overflow-y-visible overscroll-x-contain [-webkit-overflow-scrolling:touch]",
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+TableScrollViewport.displayName = "TableScrollViewport";
+
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
-    </div>
+    <table ref={ref} className={cn("w-full min-w-max caption-bottom text-sm", className)} {...props} />
   ),
 );
 Table.displayName = "Table";
@@ -46,7 +76,10 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
     <th
       ref={ref}
       className={cn(
-        "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+        "h-12 px-4 text-left align-middle font-medium text-muted-foreground",
+        tableCellCapClass,
+        "[&:has([role=checkbox])]:max-w-14 [&:has([role=checkbox])]:pr-0",
+        "[colspan]:max-w-none",
         className,
       )}
       {...props}
@@ -57,7 +90,17 @@ TableHead.displayName = "TableHead";
 
 const TableCell = React.forwardRef<HTMLTableCellElement, React.TdHTMLAttributes<HTMLTableCellElement>>(
   ({ className, ...props }, ref) => (
-    <td ref={ref} className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)} {...props} />
+    <td
+      ref={ref}
+      className={cn(
+        "p-4 align-middle",
+        tableCellCapClass,
+        "[&:has([role=checkbox])]:max-w-14 [&:has([role=checkbox])]:pr-0",
+        "[colspan]:max-w-none",
+        className,
+      )}
+      {...props}
+    />
   ),
 );
 TableCell.displayName = "TableCell";
@@ -69,4 +112,4 @@ const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttribu
 );
 TableCaption.displayName = "TableCaption";
 
-export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };
+export { Table, TableScrollViewport, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };
