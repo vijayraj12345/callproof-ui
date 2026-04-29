@@ -3,8 +3,6 @@ import { toast } from "sonner";
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  ChevronLeft,
-  ChevronRight,
   Download,
   Eye,
   FileSpreadsheet,
@@ -34,6 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PagedTableFooter } from "@/components/ui/paged-table-footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -328,7 +327,7 @@ export function CallsView() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pb-[5.5rem]">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
         <header className="relative overflow-hidden rounded-2xl border border-primary/15 p-4 shadow-soft sm:p-5">
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.12] via-violet-500/[0.07] to-accent/[0.12]"
@@ -516,88 +515,39 @@ export function CallsView() {
         </div>
       </div>
 
-      {/* Bottom pagination bar with export actions */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/90 px-3 py-3 shadow-[0_-8px_30px_-12px_rgba(0,0,0,0.12)] backdrop-blur-md supports-[backdrop-filter]:bg-background/75 lg:left-[72px]"
-        role="navigation"
+      <PagedTableFooter
         aria-label="Calls table pagination"
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={setRowsPerPage}
+        rowOptions={ROWS_OPTIONS}
+        summaryFrom={summaryFrom}
+        summaryTo={summaryTo}
+        total={total}
+        page={safePage}
+        pageCount={pageCount}
+        onPageChange={setPage}
       >
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="text-muted-foreground">Rows per page:</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="min-w-[4.5rem]">
-                  {rowsPerPage}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {ROWS_OPTIONS.map((n) => (
-                  <DropdownMenuItem key={n} onClick={() => { setRowsPerPage(n); setPage(1); }}>
-                    {n}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <span className="tabular-nums text-muted-foreground">
-              {summaryFrom}–{summaryTo} of {total}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={safePage <= 1}
-              aria-label="Previous page"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => (
-              <Button
-                key={p}
-                variant={p === safePage ? "default" : "ghost"}
-                size="sm"
-                className={cn("size-8 p-0", p === safePage && "gradient-primary text-primary-foreground shadow-glow")}
-                onClick={() => setPage(p)}
-              >
-                {p}
-              </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={safePage >= pageCount}
-              aria-label="Next page"
-              onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-              onClick={() => toast.success("Exporting mobile calls…")}
-            >
-              <FileSpreadsheet className="size-4" />
-              Export Mobile Calls
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-              onClick={() => toast.success("Exporting recorded calls…")}
-            >
-              <FileSpreadsheet className="size-4" />
-              Export Recorded Calls
-            </Button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+            onClick={() => toast.success("Exporting mobile calls…")}
+          >
+            <FileSpreadsheet className="size-4" />
+            Export Mobile Calls
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+            onClick={() => toast.success("Exporting recorded calls…")}
+          >
+            <FileSpreadsheet className="size-4" />
+            Export Recorded Calls
+          </Button>
         </div>
-      </div>
+      </PagedTableFooter>
 
       {/* Filter sheet */}
       <Sheet

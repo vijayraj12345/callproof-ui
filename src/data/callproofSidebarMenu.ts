@@ -48,7 +48,7 @@ export const callproofSidebarMenu = {
     "6": [
       { name: "What Happened Yesterday", url: "/stats/activities/", menu_row_id: 6, position: 0 },
       { name: "Daily Point Tracker", url: "/stats/points/daily/", menu_row_id: 6, position: 1 },
-      { name: "Events", url: "/dash/events/", menu_row_id: 6, position: 2 },
+      { name: "Events", url: "/events/", menu_row_id: 6, position: 2 },
       { name: "Activity", url: "/stats/productivity/daily/", menu_row_id: 6, position: 3 },
       { name: "Appointments & Visits", url: "/appointments/", menu_row_id: 6, position: 4 },
       { name: "Task & Follow-Ups", url: "/followups/", menu_row_id: 6, position: 5 },

@@ -374,7 +374,7 @@ function MockMap({
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+    <div className="relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
       {/* Map controls */}
       <div className="absolute left-3 top-3 z-10 flex flex-col gap-1 rounded-lg border border-border bg-card shadow-md">
         <button className="flex size-8 items-center justify-center text-foreground hover:bg-muted">+</button>
@@ -393,7 +393,13 @@ function MockMap({
         </Button>
       </div>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="h-full w-full min-h-0 shrink-0"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Account locations map"
+      >
         <defs>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path
@@ -568,7 +574,7 @@ export function ContactsView() {
       {/* Split content: list (left) + map (right) */}
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {/* List */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
+        <div className="flex min-h-0 min-w-0 flex-col gap-3 overflow-y-auto pr-1">
           {filtered.map((c) => (
             <ContactCard
               key={c.id}
@@ -585,8 +591,9 @@ export function ContactsView() {
         </div>
 
         {/* Map + selected detail */}
-        <div className="flex min-h-[420px] flex-col gap-3 lg:sticky lg:top-0 lg:h-[calc(100dvh-220px)]">
-          <div className="flex-1">
+        <div className="flex min-h-0 w-full min-w-0 flex-col gap-3 lg:sticky lg:top-0 lg:h-[calc(100dvh-220px)] lg:max-h-[calc(100dvh-220px)] lg:self-start">
+          {/* Stacked: bounded height so % / h-full resolve; wide: grows inside sticky column */}
+          <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden max-lg:h-[min(24rem,55svh)] max-lg:min-h-[18rem] lg:flex-1">
             <MockMap
               contacts={filtered}
               selectedId={selected?.id ?? -1}
@@ -684,10 +691,10 @@ export function ContactsView() {
 
       {/* Footer bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-border bg-card px-4 py-2 text-sm shadow-soft">
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
           <span>Rows per page:</span>
           <Select defaultValue="20">
-            <SelectTrigger className="h-8 w-20">
+            <SelectTrigger className="h-8 w-20 bg-background">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

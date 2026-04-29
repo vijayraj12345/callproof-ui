@@ -56,6 +56,29 @@ const mainNav: {
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
+/** In-app routes (client navigation) — match `App.tsx` paths. */
+function spaPathForMenuUrl(url: string): string | null {
+  if (isExternalUrl(url)) return null;
+  const p = url.replace(/\/$/, "") || "/";
+  if (p === "/") return "/";
+  if (p === "/dash/events" || p.startsWith("/dash/events/")) return "/events";
+  const roots = [
+    "/users",
+    "/contacts",
+    "/funnel/goals",
+    "/funnel/new",
+    "/funnel/opps",
+    "/calls/all",
+    "/appointments",
+    "/followups",
+    "/events",
+  ];
+  for (const r of roots) {
+    if (p === r || p.startsWith(`${r}/`)) return p;
+  }
+  return null;
+}
+
 function MenuRowLink({
   item,
   className,
@@ -81,6 +104,14 @@ function MenuRowLink({
       >
         {item.name}
       </a>
+    );
+  }
+  const spaTo = spaPathForMenuUrl(item.url);
+  if (spaTo !== null) {
+    return (
+      <Link to={spaTo} className={cls} onClick={() => onActivate?.()}>
+        {item.name}
+      </Link>
     );
   }
   return (
