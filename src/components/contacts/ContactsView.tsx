@@ -21,6 +21,7 @@ import {
   FileText,
   Eye,
   UserPlus,
+  StickyNote,
   Users,
   Briefcase,
   Clock,
