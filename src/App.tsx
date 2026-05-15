@@ -14,6 +14,7 @@ import OpportunitiesFunnel from "./pages/OpportunitiesFunnel.tsx";
 import OpportunitiesReport from "./pages/OpportunitiesReport.tsx";
 import Sms from "./pages/Sms.tsx";
 import Index from "./pages/Index.tsx";
+import Login from "./pages/Login.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import UsersLayout from "./pages/UsersLayout.tsx";
 import RoutePage from "./pages/Route.tsx";
