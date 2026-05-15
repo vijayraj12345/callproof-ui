@@ -31,6 +31,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/login/" element={<Login />} />
           <Route path="/funnel/goals" element={<Goals />} />
           <Route path="/funnel/goals/" element={<Goals />} />
           <Route path="/funnel/new" element={<OpportunitiesFunnel />} />
